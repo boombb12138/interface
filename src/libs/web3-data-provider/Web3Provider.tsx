@@ -14,8 +14,8 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useRootStore } from 'src/store/root';
 import { getNetworkConfig } from 'src/utils/marketsAndNetworksConfig';
 import { hexToAscii } from 'src/utils/utils';
-import { isLedgerDappBrowserProvider } from 'web3-ledgerhq-frame-connector';
 
+// import { isLedgerDappBrowserProvider } from 'web3-ledgerhq-frame-connector';
 import { Web3Context } from '../hooks/useWeb3Context';
 import { WalletConnectConnector } from './WalletConnectConnector';
 import { getWallet, ReadOnlyModeConnector, WalletType } from './WalletOptions';
@@ -199,8 +199,9 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
   useEffect(() => {
     if (!triedLedger && triedGnosisSafe && triedCoinbase) {
       // check if the DApp is hosted within Ledger iframe
-      const canConnectToLedger = isLedgerDappBrowserProvider();
-      if (canConnectToLedger) {
+      // const canConnectToLedger = isLedgerDappBrowserProvider();
+      if (false) {
+        // TODO check if we want to support
         connectWallet(WalletType.LEDGER).finally(() => setTriedLedger(true));
       } else {
         setTriedLedger(true);

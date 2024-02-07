@@ -1,8 +1,10 @@
 import { Tooltip, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 import { BorrowDisabledToolTip } from 'src/components/infoTooltips/BorrowDisabledToolTip';
-import { BUSDOffBoardingTooltip } from 'src/components/infoTooltips/BUSDOffboardingToolTip';
+import { OffboardingTooltip } from 'src/components/infoTooltips/OffboardingToolTip';
+import { PausedTooltip } from 'src/components/infoTooltips/PausedTooltip';
 import { StETHCollateralToolTip } from 'src/components/infoTooltips/StETHCollateralToolTip';
+import { AssetsBeingOffboarded } from 'src/components/Warnings/OffboardingWarning';
 import { useAssetCaps } from 'src/hooks/useAssetCaps';
 import { useRootStore } from 'src/store/root';
 import { CustomMarket } from 'src/ui-config/marketsConfig';
@@ -25,6 +27,7 @@ interface ListItemWrapperProps {
   children: ReactNode;
   currentMarket: CustomMarket;
   frozen?: boolean;
+  paused?: boolean;
   borrowEnabled?: boolean;
   showSupplyCapTooltips?: boolean;
   showBorrowCapTooltips?: boolean;
@@ -39,6 +42,7 @@ export const ListItemWrapper = ({
   detailsAddress,
   currentMarket,
   frozen,
+  paused,
   borrowEnabled = true,
   showSupplyCapTooltips = false,
   showBorrowCapTooltips = false,
@@ -51,7 +55,7 @@ export const ListItemWrapper = ({
   const showRenFilTooltip = frozen && symbol === 'renFIL';
   const showAmplTooltip = !frozen && symbol === 'AMPL';
   const showstETHTooltip = symbol == 'stETH';
-  const showBUSDOffBoardingTooltip = symbol == 'BUSD';
+  const offboardingDiscussion = AssetsBeingOffboarded[currentMarket]?.[symbol];
   const showBorrowDisabledTooltip = !frozen && !borrowEnabled;
   const trackEvent = useRootStore((store) => store.trackEvent);
 
@@ -78,11 +82,12 @@ export const ListItemWrapper = ({
             </Typography>
           </Tooltip>
         </Link>
+        {paused && <PausedTooltip />}
         {showFrozenTooltip && <FrozenTooltip symbol={symbol} currentMarket={currentMarket} />}
         {showRenFilTooltip && <RenFILToolTip />}
         {showAmplTooltip && <AMPLToolTip />}
         {showstETHTooltip && <StETHCollateralToolTip />}
-        {showBUSDOffBoardingTooltip && <BUSDOffBoardingTooltip />}
+        {offboardingDiscussion && <OffboardingTooltip discussionLink={offboardingDiscussion} />}
         {showBorrowDisabledTooltip && (
           <BorrowDisabledToolTip symbol={symbol} currentMarket={currentMarket} />
         )}

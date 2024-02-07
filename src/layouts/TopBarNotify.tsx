@@ -12,10 +12,11 @@ import { useRootStore } from 'src/store/root';
 
 interface TopBarNotifyProps {
   notifyText: ReactNode;
-  learnMoreLink: string;
+  learnMoreLink?: string;
+  buttonText?: string;
 }
 
-export default function TopBarNotify({ notifyText, learnMoreLink }: TopBarNotifyProps) {
+export default function TopBarNotify({ notifyText, learnMoreLink, buttonText }: TopBarNotifyProps) {
   const { breakpoints } = useTheme();
   const md = useMediaQuery(breakpoints.down('md'));
 
@@ -65,22 +66,23 @@ export default function TopBarNotify({ notifyText, learnMoreLink }: TopBarNotify
           <Box sx={{ padding: md ? '20px 10px' : '', paddingRight: 0 }}>
             <Typography component="div">
               <Trans>{notifyText}</Trans>
-              {md ? (
+
+              {learnMoreLink && md ? (
                 <Link
                   sx={{ color: 'white', textDecoration: 'underline', paddingLeft: 2 }}
-                  target={'_blank'}
+                  // target={'_blank'} Todo option to pass as prop
                   href={learnMoreLink}
                 >
-                  <Trans>Learn more</Trans>
+                  <Trans>{buttonText ? buttonText : `Learn more`}</Trans>
                 </Link>
               ) : null}
             </Typography>
           </Box>
           <Box>
-            {!md ? (
+            {!md && learnMoreLink ? (
               <Button
                 component="a"
-                target={'_blank'}
+                // target={'_blank'} Todo option to pass as prop
                 size="small"
                 href={learnMoreLink}
                 sx={{
@@ -91,7 +93,7 @@ export default function TopBarNotify({ notifyText, learnMoreLink }: TopBarNotify
                   color: '#EAEBEF',
                 }}
               >
-                <Trans>LEARN MORE</Trans>
+                <Trans> {buttonText ? buttonText.toUpperCase() : `LEARN MORE`}</Trans>
               </Button>
             ) : null}
           </Box>

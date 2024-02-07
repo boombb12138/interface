@@ -8,8 +8,8 @@ import { TorusConnector } from '@web3-react/torus-connector';
 import { ConnectorUpdate } from '@web3-react/types';
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { getNetworkConfig } from 'src/utils/marketsAndNetworksConfig';
-import { LedgerHQFrameConnector } from 'web3-ledgerhq-frame-connector';
 
+// import { LedgerHQFrameConnector } from 'web3-ledgerhq-frame-connector';
 import { WalletConnectConnector } from './WalletConnectConnector';
 
 export enum WalletType {
@@ -80,9 +80,9 @@ export const getWallet = (
   switch (wallet) {
     case WalletType.READ_ONLY_MODE:
       return new ReadOnlyModeConnector();
-    case WalletType.LEDGER:
-      return new LedgerHQFrameConnector({});
-    case WalletType.INJECTED://browser wallet
+    // case WalletType.LEDGER:
+    //   return new LedgerHQFrameConnector({});
+    case WalletType.INJECTED:
       return new InjectedConnector({});
     case WalletType.WALLET_LINK://coInbase
       const networkConfig = getNetworkConfig(chainId);

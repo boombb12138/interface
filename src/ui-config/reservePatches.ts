@@ -1,3 +1,9 @@
+import {
+  AaveV3Arbitrum,
+  AaveV3Gnosis,
+  AaveV3Optimism,
+  AaveV3Polygon,
+} from '@bgd-labs/aave-address-book';
 import { unPrefixSymbol } from 'src/hooks/app-data-provider/useAppDataProvider';
 
 /**
@@ -57,7 +63,6 @@ export const SYMBOL_NAME_MAP: { [key: string]: string } = {
   FAI: 'Fei USD',
   GHST: 'Aavegotchi GHST',
   GUSD: 'Gemini Dollar',
-  KNC: 'Kyber Legacy',
   LINK: 'ChainLink',
   MAI: 'MAI (mimatic)',
   MANA: 'Decentraland',
@@ -99,10 +104,35 @@ interface IconMapInterface {
 
 export function fetchIconSymbolAndName({ underlyingAsset, symbol, name }: IconSymbolInterface) {
   const underlyingAssetMap: Record<string, IconMapInterface> = {
-    '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': {
+    '0xdd974d5c2e2928dea5f71b9825b8b646686bd200': {
+      name: 'Kyber Legacy',
+      symbol: 'KNCL',
+      iconSymbol: 'KNCL',
+    },
+    [AaveV3Arbitrum.ASSETS.USDC.UNDERLYING.toLowerCase()]: {
       name: 'Bridged USDC',
       symbol: 'USDC.e',
       iconSymbol: 'USDC',
+    },
+    [AaveV3Optimism.ASSETS.USDC.UNDERLYING.toLowerCase()]: {
+      name: 'Bridged USDC',
+      symbol: 'USDC.e',
+      iconSymbol: 'USDC',
+    },
+    [AaveV3Polygon.ASSETS.USDC.UNDERLYING.toLowerCase()]: {
+      name: 'Bridged USDC',
+      symbol: 'USDC.e',
+      iconSymbol: 'USDC',
+    },
+    [AaveV3Gnosis.ASSETS.sDAI.UNDERLYING.toLowerCase()]: {
+      name: 'Savings xDAI',
+      symbol: 'sDAI',
+      iconSymbol: 'gnosissdai',
+    },
+    '0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c': {
+      name: 'BTCB Token',
+      symbol: 'BTCB',
+      iconSymbol: 'btc',
     },
     '0xa693B19d2931d498c5B318dF961919BB4aee87a5': { iconSymbol: 'UST', name: 'UST (Wormhole)' },
     '0x59a19d8c652fa0284f44113d0ff9aba70bd46fb4': { iconSymbol: 'BPT_BAL_WETH' },
@@ -138,25 +168,3 @@ export function fetchIconSymbolAndName({ underlyingAsset, symbol, name }: IconSy
     symbol,
   };
 }
-
-// tokens flagged stable will be sorted on top when no other sorting is selected
-export const STABLE_ASSETS = [
-  'DAI',
-  'TUSD',
-  'BUSD',
-  'GUSD',
-  'USDC',
-  'USDT',
-  'EUROS',
-  'FEI',
-  'FRAX',
-  'PAX',
-  'USDP',
-  'SUSD',
-  'UST',
-  'EURS',
-  'JEUR',
-  'AGEUR',
-  'LUSD',
-  'MAI',
-];

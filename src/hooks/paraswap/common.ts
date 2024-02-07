@@ -2,6 +2,7 @@ import { ChainId, valueToWei } from '@aave/contract-helpers';
 import { BigNumberZeroDecimal, normalize, normalizeBN, valueToBigNumber } from '@aave/math-utils';
 import { MiscBase, MiscEthereum } from '@bgd-labs/aave-address-book';
 import {
+  BuildTxFunctions,
   constructBuildTx,
   constructFetchFetcher,
   constructGetRate,
@@ -11,7 +12,7 @@ import {
   SwapSide,
   TransactionParams,
 } from '@paraswap/sdk';
-import { RateOptions } from '@paraswap/sdk/dist/methods/swap/rates';
+import { GetRateFunctions, RateOptions } from '@paraswap/sdk/dist/methods/swap/rates';
 
 import { ComputedReserveData } from '../app-data-provider/useAppDataProvider';
 
@@ -58,27 +59,31 @@ const ParaSwap = (chainId: number) => {
   );
 };
 
-const mainnetParaswap = ParaSwap(ChainId.mainnet);
-const polygonParaswap = ParaSwap(ChainId.polygon);
-const avalancheParaswap = ParaSwap(ChainId.avalanche);
-const fantomParaswap = ParaSwap(ChainId.fantom);
-const arbitrumParaswap = ParaSwap(ChainId.arbitrum_one);
-const optimismParaswap = ParaSwap(ChainId.optimism);
-const baseParaswap = ParaSwap(ChainId.base);
-
-export const getParaswap = (chainId: ChainId) => {
-  if (ChainId.mainnet === chainId) return mainnetParaswap;
-  if (ChainId.polygon === chainId) return polygonParaswap;
-  if (ChainId.avalanche === chainId) return avalancheParaswap;
-  if (ChainId.fantom === chainId) return fantomParaswap;
-  if (ChainId.arbitrum_one === chainId) return arbitrumParaswap;
-  if (ChainId.optimism === chainId) return optimismParaswap;
-  if (ChainId.base === chainId) return baseParaswap;
-
-  throw new Error('chain not supported');
+type ParaswapChainMap = {
+  [key in ChainId]?: BuildTxFunctions & GetRateFunctions;
 };
 
-const getFeeClaimerAddress = (chainId: ChainId) => {
+const paraswapNetworks: ParaswapChainMap = {
+  [ChainId.mainnet]: ParaSwap(ChainId.mainnet),
+  [ChainId.polygon]: ParaSwap(ChainId.polygon),
+  [ChainId.avalanche]: ParaSwap(ChainId.avalanche),
+  [ChainId.fantom]: ParaSwap(ChainId.fantom),
+  [ChainId.arbitrum_one]: ParaSwap(ChainId.arbitrum_one),
+  [ChainId.optimism]: ParaSwap(ChainId.optimism),
+  [ChainId.base]: ParaSwap(ChainId.base),
+  [ChainId.bnb]: ParaSwap(ChainId.bnb),
+};
+
+export const getParaswap = (chainId: ChainId) => {
+  const paraswap = paraswapNetworks[chainId];
+  if (paraswap) {
+    return paraswap;
+  }
+
+  throw new Error('Chain not supported');
+};
+
+export const getFeeClaimerAddress = (chainId: ChainId) => {
   if (ChainId.base === chainId) return MiscBase.PARASWAP_FEE_CLAIMER;
 
   return MiscEthereum.PARASWAP_FEE_CLAIMER;
@@ -297,7 +302,7 @@ export async function fetchExactOutRate(
   );
 }
 
-const ExactInSwapper = (chainId: ChainId) => {
+export const ExactInSwapper = (chainId: ChainId) => {
   const paraSwap = getParaswap(chainId);
   const FEE_CLAIMER_ADDRESS = getFeeClaimerAddress(chainId);
 
@@ -350,7 +355,7 @@ const ExactInSwapper = (chainId: ChainId) => {
           priceRoute: route,
           userAddress: user,
           partnerAddress: FEE_CLAIMER_ADDRESS,
-          positiveSlippageToUser: false,
+          takeSurplus: true,
         },
         { ignoreChecks: true }
       );
@@ -423,7 +428,7 @@ const ExactOutSwapper = (chainId: ChainId) => {
           priceRoute: route,
           userAddress: user,
           partnerAddress: FEE_CLAIMER_ADDRESS,
-          positiveSlippageToUser: false,
+          takeSurplus: true,
           srcDecimals,
           destDecimals,
         },

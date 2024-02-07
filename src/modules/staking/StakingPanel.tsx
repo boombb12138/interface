@@ -1,7 +1,8 @@
+import { ChainId } from '@aave/contract-helpers';
 import {
   GeneralStakeUIDataHumanized,
   GetUserStakeUIDataHumanized,
-} from '@aave/contract-helpers/dist/esm/uiStakeDataProvider-contract/types';
+} from '@aave/contract-helpers/dist/esm/V3-uiStakeDataProvider-contract/types';
 import { valueToBigNumber } from '@aave/math-utils';
 import { RefreshIcon } from '@heroicons/react/outline';
 import { Trans } from '@lingui/macro';
@@ -23,6 +24,7 @@ import { FormattedNumber } from 'src/components/primitives/FormattedNumber';
 import { TokenIcon } from 'src/components/primitives/TokenIcon';
 import { TextWithTooltip } from 'src/components/TextWithTooltip';
 import { useCurrentTimestamp } from 'src/hooks/useCurrentTimestamp';
+import { useModalContext } from 'src/hooks/useModal';
 import { ENABLE_TESTNET, STAGING_ENV } from 'src/utils/marketsAndNetworksConfig';
 import { GENERAL } from 'src/utils/mixPanelEvents';
 
@@ -71,8 +73,8 @@ export interface StakingPanelProps {
   onStakeRewardClaimRestakeAction?: () => void;
   onCooldownAction?: () => void;
   onUnstakeAction?: () => void;
-  stakeData?: GeneralStakeUIDataHumanized['aave'];
-  stakeUserData?: GetUserStakeUIDataHumanized['aave'];
+  stakeData?: GeneralStakeUIDataHumanized['stakeData'][0];
+  stakeUserData?: GetUserStakeUIDataHumanized['stakeUserData'][0];
   description?: React.ReactNode;
   headerAction?: React.ReactNode;
   ethPriceUsd?: string;
@@ -96,13 +98,17 @@ export const StakingPanel: React.FC<StakingPanelProps> = ({
   icon,
   stakeData,
   stakeUserData,
-  ethPriceUsd,
   maxSlash,
   hasDiscountProgram,
 }) => {
   const { breakpoints } = useTheme();
   const xsm = useMediaQuery(breakpoints.up('xsm'));
   const now = useCurrentTimestamp(1);
+  const { openSwitch } = useModalContext();
+
+  const handleSwitchClick = () => {
+    openSwitch('', ChainId.mainnet);
+  };
 
   // Cooldown logic
   const stakeCooldownSeconds = stakeData?.stakeCooldownSeconds || 0;
@@ -128,24 +134,24 @@ export const StakingPanel: React.FC<StakingPanelProps> = ({
     );
 
   const stakedUSD = formatUnits(
-    BigNumber.from(stakeUserData?.stakeTokenRedeemableAmount || '0')
-      .mul(stakeData?.stakeTokenPriceEth || '0')
-      .mul(ethPriceUsd || '1'),
-    18 + 18 + 8 // userBalance (18), stakedTokenPriceEth (18), ethPriceUsd (8)
+    BigNumber.from(stakeUserData?.stakeTokenRedeemableAmount || '0').mul(
+      stakeData?.stakeTokenPriceUSD || '0'
+    ),
+    18 + 8 // userBalance (18), stakedTokenPriceUSD (8)
   );
 
   const claimableUSD = formatUnits(
-    BigNumber.from(stakeUserData?.userIncentivesToClaim || '0')
-      .mul(stakeData?.rewardTokenPriceEth || '0')
-      .mul(ethPriceUsd || '1'),
-    18 + 18 + 8 // incentivesBalance (18), rewardTokenPriceEth (18), ethPriceUsd (8)
+    BigNumber.from(stakeUserData?.userIncentivesToClaim || '0').mul(
+      stakeData?.rewardTokenPriceUSD || '0'
+    ),
+    18 + 8 // incentivesBalance (18), rewardTokenPriceUSD (8)
   );
 
   const aavePerMonth = formatEther(
     valueToBigNumber(stakeUserData?.stakeTokenRedeemableAmount || '0')
       .dividedBy(stakeData?.stakeTokenTotalSupply || '1')
       .multipliedBy(stakeData?.distributionPerSecond || '0')
-      .multipliedBy('2592000')
+      .multipliedBy('2592000') // NOTE: Monthly distribution
       .toFixed(0)
   );
 
@@ -267,16 +273,29 @@ export const StakingPanel: React.FC<StakingPanelProps> = ({
         </Box>
 
         {/**Stake action */}
-        <Button
-          variant="contained"
-          sx={{ minWidth: '96px', mb: { xs: 6, xsm: 0 } }}
-          onClick={onStakeAction}
-          disabled={+availableToStake === 0}
-          fullWidth={!xsm}
-          data-cy={`stakeBtn_${stakedToken.toUpperCase()}`}
-        >
-          <Trans>Stake</Trans>
-        </Button>
+
+        {stakedToken === 'GHO' && +availableToStake === 0 ? (
+          <Button
+            variant="contained"
+            sx={{ minWidth: '96px', mb: { xs: 6, xsm: 0 } }}
+            onClick={handleSwitchClick}
+            fullWidth={!xsm}
+            data-cy={`stakeBtn_${stakedToken.toUpperCase()}`}
+          >
+            <Trans>Get GHO</Trans>
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            sx={{ minWidth: '96px', mb: { xs: 6, xsm: 0 } }}
+            onClick={onStakeAction}
+            disabled={+availableToStake === 0}
+            fullWidth={!xsm}
+            data-cy={`stakeBtn_${stakedToken.toUpperCase()}`}
+          >
+            <Trans>Stake</Trans>
+          </Button>
+        )}
       </Box>
 
       <Stack

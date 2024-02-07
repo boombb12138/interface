@@ -3,7 +3,6 @@ import { USD_DECIMALS, valueToBigNumber } from '@aave/math-utils';
 import { Trans } from '@lingui/macro';
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { Fragment, useState } from 'react';
-import { StableAPYTooltip } from 'src/components/infoTooltips/StableAPYTooltip';
 import { VariableAPYTooltip } from 'src/components/infoTooltips/VariableAPYTooltip';
 import { ListColumn } from 'src/components/lists/ListColumn';
 import { ListHeaderTitle } from 'src/components/lists/ListHeaderTitle';
@@ -75,20 +74,20 @@ const head = [
     ),
     sortKey: 'variableBorrowAPY',
   },
-  {
-    title: (
-      <StableAPYTooltip
-        event={{
-          eventName: GENERAL.TOOL_TIP,
-          eventParams: { tooltip: 'Stable Borrow APY' },
-        }}
-        text={<Trans>APY, stable</Trans>}
-        key="stableBorrowAPY"
-        variant="subheader2"
-      />
-    ),
-    sortKey: 'stableBorrowAPY',
-  },
+  // {
+  //   title: (
+  //     <StableAPYTooltip
+  //       event={{
+  //         eventName: GENERAL.TOOL_TIP,
+  //         eventParams: { tooltip: 'Stable Borrow APY' },
+  //       }}
+  //       text={<Trans>APY, stable</Trans>}
+  //       key="stableBorrowAPY"
+  //       variant="subheader2"
+  //     />
+  //   ),
+  //   sortKey: 'stableBorrowAPY',
+  // },
 ];
 
 export const BorrowAssetsList = () => {
@@ -148,15 +147,13 @@ export const BorrowAssetsList = () => {
   const borrowReserves =
     user?.totalCollateralMarketReferenceCurrency === '0' || +collateralUsagePercent >= 0.98
       ? tokensToBorrow
-      : tokensToBorrow.filter(
-          ({ availableBorrowsInUSD, totalLiquidityUSD, symbol }) =>
-            availableBorrowsInUSD !== '0.00' &&
-            (totalLiquidityUSD !== '0' ||
-              displayGho({
-                symbol,
-                currentMarket,
-              }))
-        );
+      : tokensToBorrow.filter(({ availableBorrowsInUSD, totalLiquidityUSD, symbol }) => {
+          if (displayGho({ symbol, currentMarket })) {
+            return true;
+          }
+
+          return availableBorrowsInUSD !== '0.00' && totalLiquidityUSD !== '0';
+        });
 
   const { value: ghoReserve, filtered: filteredReserves } = findAndFilterGhoReserve(borrowReserves);
   const sortedReserves = handleSortDashboardReserves(
@@ -226,7 +223,7 @@ export const BorrowAssetsList = () => {
               <MarketWarning marketName="Ethereum AMM" />
             )}
 
-            {+collateralUsagePercent >= 0.98 && (
+            {user.healthFactor !== '-1' && Number(user.healthFactor) <= 1.1 && (
               <Warning severity="error">
                 <Trans>
                   Be careful - You are very close to liquidation. Consider depositing more
