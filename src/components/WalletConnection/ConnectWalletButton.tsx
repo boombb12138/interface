@@ -16,6 +16,7 @@ export const ConnectWalletButton: React.FC<ConnectWalletProps> = ({ funnel }) =>
 
   return (
     <>
+    {/* HACK 连接钱包的渐变按钮 */}
       <Button
         variant="gradient"
         onClick={() => {

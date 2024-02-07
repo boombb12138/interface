@@ -82,16 +82,16 @@ export const getWallet = (
       return new ReadOnlyModeConnector();
     case WalletType.LEDGER:
       return new LedgerHQFrameConnector({});
-    case WalletType.INJECTED:
+    case WalletType.INJECTED://browser wallet
       return new InjectedConnector({});
-    case WalletType.WALLET_LINK:
+    case WalletType.WALLET_LINK://coInbase
       const networkConfig = getNetworkConfig(chainId);
       return new WalletLinkConnector({
         appName: APP_NAME,
         appLogoUrl: APP_LOGO_URL,
         url: networkConfig.privateJsonRPCUrl || networkConfig.publicJsonRPCUrl[0],
       });
-    case WalletType.WALLET_CONNECT:
+     case WalletType.WALLET_CONNECT://WALLET_CONNECT
       return new WalletConnectConnector(currentChainId);
     case WalletType.GNOSIS:
       if (window) {

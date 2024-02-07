@@ -86,6 +86,7 @@ export default function MyApp(props: MyAppProps) {
       />
       <LanguageProvider>
         <QueryClientProvider client={queryClient}>
+          {/* 以下的provider是web3react的 Web3ContextProvider是react context要共享的数据*/}
           <Web3ReactProvider getLibrary={getWeb3Library}>
             <Web3ContextProvider>
               <AppGlobalStyles>

@@ -164,6 +164,7 @@ export function AppHeader() {
 
         <Box sx={{ flexGrow: 1 }} />
 
+{/* HACK手机端和pc端要做两套弹出？ */}
         {!mobileMenuOpen && (
           <WalletWidget
             open={walletWidgetOpen}

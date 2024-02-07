@@ -73,7 +73,7 @@ export default function WalletWidget({ open, setOpen, headerHeight }: WalletWidg
       setWalletModalOpen(true);
     } else {
       setOpen(true);
-      setAnchorEl(event.currentTarget);
+      setAnchorEl(event.currentTarget);//点击了地址按钮就会打开DrawerWrapper
     }
   };
 
@@ -256,6 +256,7 @@ export default function WalletWidget({ open, setOpen, headerHeight }: WalletWidg
       )}
       {md && (
         <>
+        {/* HACK连接钱包后 点击地址弹出面板 面板里面有切换钱包和断开钱包的2个按钮 */}
           <Divider sx={{ my: { xs: 7, md: 0 }, borderColor: { xs: '#FFFFFF1F', md: 'divider' } }} />
           <Box sx={{ padding: '16px 16px 10px' }}>
             <Button
