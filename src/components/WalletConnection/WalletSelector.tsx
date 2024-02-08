@@ -20,6 +20,7 @@ export type WalletRowProps = {
   walletType: WalletType;
 };
 const WalletRow = ({ walletName, walletType }: WalletRowProps) => {
+  // useWeb3Context是封装起来的useContext 就可以从中拿到Web3Provider里面定义的函数和变量
   const { connectWallet, loading } = useWeb3Context();
   const trackEvent = useRootStore((store) => store.trackEvent);
 
@@ -80,6 +81,7 @@ const WalletRow = ({ walletName, walletType }: WalletRowProps) => {
     connectWallet(walletType);
   };
   return (
+    // HACK 选择的钱包按钮
     <Button
       disabled={loading}
       variant="outlined"

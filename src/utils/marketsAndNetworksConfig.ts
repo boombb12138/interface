@@ -92,7 +92,7 @@ export function getDefaultChainId() {
 }
 
 export function getSupportedChainIds(): number[] {
-  return Array.from(
+ const supportedChainIds=  Array.from(
     Object.keys(marketsData)
       .filter((value) => {
         const isTestnet =
@@ -110,6 +110,8 @@ export function getSupportedChainIds(): number[] {
         new Set<number>()
       )
   );
+  console.log("supportedChainIds",supportedChainIds)
+  return supportedChainIds;
 }
 
 /**

@@ -37,7 +37,7 @@ export type Web3Data = {
   loading: boolean;
   provider: JsonRpcProvider | undefined;
   chainId: number;
-  switchNetwork: (chainId: number) => Promise<void>;
+  switchNetwork: (chainId:  number) => Promise<void>;
   getTxError: (txHash: string) => Promise<string>;
   sendTx: (txData: transactionType | PopulatedTransaction) => Promise<TransactionResponse>;
   addERC20Token: (args: ERC20TokenType) => Promise<boolean>;
@@ -132,6 +132,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
     async (wallet: WalletType) => {
       setLoading(true);
       try {
+        // 先是getWallet得到继承自抽象钱包的connector
         const connector: AbstractConnector = getWallet(wallet, chainId, currentChainId);
 
         if (connector instanceof ReadOnlyModeConnector) {
@@ -143,7 +144,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
         if (connector instanceof WalletConnectConnector) {
           connector.walletConnectProvider = undefined;
         }
-        await activate(connector, undefined, true);
+        await activate(connector, undefined, true);//HACK真正连接钱包的逻辑
         setConnector(connector);
         setSwitchNetworkError(undefined);
         setWalletType(wallet);
@@ -193,6 +194,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
     return false;
   };
 
+  // HACK 有三个步骤 先连接gnosis 再是coinbase 再是ledger
   // third, try connecting to ledger
   useEffect(() => {
     if (!triedLedger && triedGnosisSafe && triedCoinbase) {
@@ -263,6 +265,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
     }
   }, [connectWallet, setTriedGnosisSafe, triedGnosisSafe]);
 
+  // eagerly connect是尽早建立连接的话 是自动的吗 一挂载小狐狸并没有自动有对话框
   // handle logic to eagerly connect to the injected ethereum provider,
   // if it exists and has granted access already
   useEffect(() => {
@@ -433,6 +436,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
   }, [loading]);
 
   return (
+    // 在这里共享的是一些从useWeb3React拿到的数据 还有这个文件定义的函数
     <Web3Context.Provider
       value={{
         web3ProviderData: {

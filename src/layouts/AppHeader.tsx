@@ -287,6 +287,7 @@ export function AppHeader() {
           </StyledBadge>
         </NoSsr>
 
+{/* HACK手机端和pc端要做两套弹出？ */}
         {!mobileMenuOpen && (
           <WalletWidget
             open={walletWidgetOpen}

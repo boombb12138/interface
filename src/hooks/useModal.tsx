@@ -148,6 +148,7 @@ export const ModalContextProvider: React.FC = ({ children }) => {
           setType(ModalType.Supply);
           setArgs({ underlyingAsset });
 
+          // 这里trackEvent又怎么样呢
           if (isReserve) {
             trackEvent(GENERAL.OPEN_MODAL, {
               modal: 'Supply',
